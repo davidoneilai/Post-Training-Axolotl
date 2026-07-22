@@ -1,0 +1,62 @@
+base_model: "TucanoBR/Tucano-2b4" 
+tokenizer_type: AutoTokenizer        
+trust_remote_code: true
+is_llama_derived_model: true
+strict: false
+chat_template: chatml
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+datasets:
+  - path: ./outputs/dataset_tokenlab/train
+    type: chat_template 
+
+test_datasets:
+  - path: ./outputs/dataset_tokenlab/test
+    type: chat_template
+                
+dataset_prepared_path: ./outputs/dataset_prepared
+val_set_size: 0.0
+output_dir: "./outputs/tucano2b4-sft-tokenlab"
+
+train_on_inputs: false        
+learning_rate: 2e-5
+sequence_len: 4096           
+micro_batch_size: 1          
+gradient_accumulation_steps: 8   
+num_epochs: 3                
+sample_packing: true
+sample_packing_group_size: 100000
+sample_packing_bin_size: 200
+pad_to_sequence_len: true
+group_by_length: true
+
+flash_attn: true
+bf16: true          
+tf32: true
+gradient_checkpointing: true
+activation_offloading: false
+gradient_checkpointing: true
+optimizer: adamw_torch_fused
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_epsilon: 1.0e-8
+lr_scheduler: cosine
+warmup_steps: 100
+weight_decay: 0.0   
+
+eval_strategy: steps
+eval_steps: 100
+
+save_strategy: steps
+save_steps: 100
+save_total_limit: 3
+save_only_model: false
+save_safetensors: true
+load_best_model_at_end: true
+metric_for_best_model: eval_loss
+greater_is_better: false
+logging_steps: 10
+
+use_wandb: true
+wandb_project: "tucano2b4"
+wandb_name: "tucano2b4-tokenlab"

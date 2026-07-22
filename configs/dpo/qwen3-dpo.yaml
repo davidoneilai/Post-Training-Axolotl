@@ -1,0 +1,126 @@
+base_model: Qwen/Qwen3-4B
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+# Para Qwen3, prefira o template nativo do tokenizer
+chat_template: tokenizer_default
+rl: dpo
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+# DPO exige pares de preferencia (messages + chosen + rejected).
+# Seus JSONL atuais sao SFT (apenas messages), entao gere versoes *_dpo.jsonl
+# reaproveitando os mesmos prompts/conversas.
+
+datasets:
+  - path: /workspace/prepared_datasets/dpo_bootstrap/MultiTurnConvo_chunked_4096tok_dpo.jsonl
+    ds_type: json
+    type: chat_template.default
+    field_messages: messages
+    field_chosen: chosen
+    field_rejected: rejected
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/dpo_bootstrap/RewriteFocus_chunked_4096tok_dpo.jsonl
+    ds_type: json
+    type: chat_template.default
+    field_messages: messages
+    field_chosen: chosen
+    field_rejected: rejected
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/dpo_bootstrap/RewriteSimple_chunked_4096tok_dpo.jsonl
+    ds_type: json
+    type: chat_template.default
+    field_messages: messages
+    field_chosen: chosen
+    field_rejected: rejected
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/dpo_bootstrap/Summary_chunked_4096tok_dpo.jsonl
+    ds_type: json
+    type: chat_template.default
+    field_messages: messages
+    field_chosen: chosen
+    field_rejected: rejected
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/dpo_bootstrap/train_chunked_4096tok_dpo.jsonl
+    ds_type: json
+    type: chat_template.default
+    field_messages: messages
+    field_chosen: chosen
+    field_rejected: rejected
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+dataset_prepared_path: ./prepared_datasets/qwen3-4b-tokenlab-mix-dpo
+dataset_processes: 16
+val_set_size: 0.0
+
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_layer_norm: true
+liger_fused_linear_cross_entropy: false
+
+sequence_len: 4096
+sample_packing: false
+flash_attention: true
+gradient_checkpointing: true
+
+gradient_accumulation_steps: 4
+micro_batch_size: 8
+num_epochs: 1
+
+optimizer: adamw_torch_fused
+lr_scheduler: cosine
+learning_rate: 1e-5
+warmup_ratio: 0.05
+weight_decay: 0.01
+
+bf16: true
+tf32: true
+
+logging_steps: 1
+evals_per_epoch: 1
+saves_per_epoch: 1
+
+resume_from_checkpoint:
+
+output_dir: ./outputs/qwen3-4b-tokenlab-mix-1e5-dpo
+use_wandb: true
+wandb_project: qwen3-4b-tokenlab-mix-1e5-dpo
+wandb_name: qwen3-4b-tokenlab-mix-1e5-dpo

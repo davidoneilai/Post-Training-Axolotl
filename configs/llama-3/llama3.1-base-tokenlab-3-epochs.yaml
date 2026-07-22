@@ -1,0 +1,77 @@
+base_model: meta-llama/Llama-3.1-8B
+tokenizer_type: AutoTokenizer
+trust_remote_code: true
+strict: false
+
+is_llama_derived_model: true
+chat_template: chatml
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+special_tokens:
+  pad_token: "<|eot_id|>"
+
+datasets:
+  - path: ./outputs/dataset_tokenlab/train
+    type: chat_template
+    weight: 1.0                     
+    message_property_mappings:
+      role: role
+      content: content
+    field_output: output
+
+train_on_inputs: false
+
+sequence_len: 8192
+eval_sequence_len: 8192
+pad_to_sequence_len: true
+sample_packing: true
+sample_packing_group_size: 100000
+sample_packing_bin_size: 200
+group_by_length: true
+
+flash_attn: true
+
+micro_batch_size: 1
+gradient_accumulation_steps: 8
+num_epochs: 3
+
+learning_rate: 2.0e-5
+optimizer: adamw_torch_fused
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_epsilon: 1.0e-8
+
+
+lr_scheduler: cosine
+warmup_steps: 100
+weight_decay: 0.0
+
+bf16: true
+tf32: true
+gradient_checkpointing: true
+activation_offloading: false
+
+val_set_size: 0.01          
+eval_strategy: steps
+eval_steps: 100
+
+save_strategy: steps
+save_steps: 100
+save_total_limit: 3
+save_only_model: false
+save_safetensors: true
+load_best_model_at_end: true
+metric_for_best_model: eval_loss
+greater_is_better: false
+
+logging_steps: 10
+
+output_dir: ./outputs/Llama-3.1-8B-nemotron-3epochs/
+seed: 42
+
+use_wandb: true
+wandb_project: "llama31_base_tokenlab"
+wandb_name: "llama31-8b-base-tokenlab"
+

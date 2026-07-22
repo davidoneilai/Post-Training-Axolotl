@@ -1,0 +1,148 @@
+base_model: Qwen/Qwen3-4B
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+chat_template: tokenizer_default
+rl: grpo
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+trl:
+  beta: 0.001
+  loss_type: dr_grpo
+
+  max_prompt_length: 3072
+  max_completion_length: 512
+  num_generations: 8
+
+  use_vllm: true
+  vllm_mode: server
+  vllm_server_host: 127.0.0.1
+  vllm_server_port: 8000
+  vllm_server_timeout: 300
+  vllm_lora_sync: false
+  generation_batch_size: 16
+  vllm_sync_interval: 4
+
+  use_data_producer: true
+  async_prefetch: true
+  prefetch_depth: 1
+  streaming_partial_batch: true
+  reward_num_workers: 8
+  skip_zero_advantage_batches: true
+
+  reward_funcs:
+    - rewards_grpo.answer_similarity_reward
+  reward_weights: [1.0]
+
+  chat_template_kwargs:
+    enable_thinking: false
+
+  generation_kwargs:
+    top_p: 0.95
+    top_k: 20
+    repetition_penalty: 1.05
+    stop_token_ids: [151645, 151643]
+
+vllm:
+  serve_module: axolotl.scripts.vllm_serve_lora
+  worker_extension_cls: axolotl.scripts.vllm_worker_ext.BatchWeightSyncWorkerExtension
+  host: 0.0.0.0
+  port: 8000
+  gpu_memory_utilization: 0.85
+  dtype: auto
+  max_model_len: 4608
+  enable_prefix_caching: true
+
+datasets:
+  - path: /workspace/prepared_datasets/chunks_prontos_char/MultiTurnConvo_chunk-4096.jsonl
+    ds_type: json
+    type: rewards_grpo.naive_messages_to_grpo
+    field_messages: messages
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/chunks_prontos_char/RewriteFocus_chunk-4096.jsonl
+    ds_type: json
+    type: rewards_grpo.naive_messages_to_grpo
+    field_messages: messages
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/chunks_prontos_char/RewriteSimple_chunk-4096.jsonl
+    ds_type: json
+    type: rewards_grpo.naive_messages_to_grpo
+    field_messages: messages
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+  - path: /workspace/prepared_datasets/chunks_prontos_char/Summary_chunk-4096.jsonl
+    ds_type: json
+    type: rewards_grpo.naive_messages_to_grpo
+    field_messages: messages
+    message_property_mappings:
+      role: role
+      content: content
+    roles:
+      system: [system]
+      user: [user]
+      assistant: [assistant]
+
+dataset_prepared_path: ./prepared_datasets/qwen3-4b-tokenlab-mix-grpo-naive_v2
+dataset_processes: 16
+val_set_size: 0.0
+
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_layer_norm: true
+liger_fused_linear_cross_entropy: false
+
+sequence_len: 4096
+sample_packing: false
+flash_attention: true
+gradient_checkpointing: true
+
+gradient_accumulation_steps: 8
+micro_batch_size: 4
+
+#max_steps: 2000
+num_epochs: 1
+logging_steps: 1
+
+optimizer: adamw_torch_fused
+lr_scheduler: cosine
+learning_rate: 5e-6
+warmup_steps: 10
+weight_decay: 0.01
+
+bf16: true
+tf32: true
+
+evals_per_epoch: 1
+saves_per_epoch: 1
+
+resume_from_checkpoint:
+
+output_dir: ./outputs/qwen3-4b-grpo
+use_wandb: true
+wandb_project: qwen3-4b-grpo
+wandb_name: qwen3-4b-grpo

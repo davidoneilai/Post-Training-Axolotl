@@ -1,0 +1,11 @@
+llama3.1 e llama3.2 -> base e Instruct
+
+usar o SFT do llama-nemotron-post-training dataset
+
+verificar paper do SmolLLM -> pegar os hiperparemetros do SFT
+
+validar em benchmark inglês
+
+depois disso, depois das 4 checkpoints fazer RL neles com o dataset do llama-nemotron-post-training dataset para RL
+
+zerar o gradiente, fazer o SFT em fp8

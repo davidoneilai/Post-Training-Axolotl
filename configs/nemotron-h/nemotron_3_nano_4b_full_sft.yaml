@@ -1,0 +1,53 @@
+base_model: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16
+trust_remote_code: true
+strict: false
+
+load_in_8bit: false
+load_in_4bit: false
+
+chat_template: tokenizer_default
+
+datasets:
+  - path: /raid/user_davidoneil/datasets/full_sft_mix_core_plus_safety_extra/training.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+
+train_on_inputs: false
+val_set_size: 0.0
+output_dir: ./outputs/qwen3-4b-dataset-cemig-and-nemo/nemotron4b_cemig_sft
+dataset_prepared_path: /raid/user_davidoneil/datasets_cache/nemotron4b_cemig_sft_prepared
+
+sequence_len: 4096
+sample_packing: false
+
+gradient_accumulation_steps: 8
+micro_batch_size: 1
+num_epochs: 1
+
+optimizer: adamw_torch
+adam_beta1: 0.9
+adam_beta2: 0.95
+adam_epsilon: 1.0e-8
+lr_scheduler: cosine
+learning_rate: 2.0e-5
+
+bf16: auto
+tf32: true
+
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+resume_from_checkpoint: null
+logging_steps: 1
+eager_attention: true
+
+warmup_ratio: 0.1
+weight_decay: 0.1
+
+save_strategy: "epoch"
+save_total_limit: 1
+save_safetensors: true
+
+seed: 1111

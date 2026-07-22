@@ -1,0 +1,83 @@
+base_model: Qwen/Qwen3-32B
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+chat_template: tokenizer_default
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+datasets:
+  - path: /raid/user_davidoneil/datasets/TokenLab__CemigConvo_v0.5/MultiTurnConvo_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /raid/user_davidoneil/datasets/TokenLab__CemigConvo_v0.5/RewriteFocus_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /raid/user_davidoneil/datasets/TokenLab__CemigConvo_v0.5/RewriteSimple_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /raid/user_davidoneil/datasets/TokenLab__CemigConvo_v0.5/Summary_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /raid/user_davidoneil/datasets/TokenLab__IF-PT-v1/train_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+dataset_prepared_path: ./prepared_datasets/qwen3-32b-tokenlab-mix
+dataset_processes: 16
+val_set_size: 0.0
+
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_layer_norm: true
+liger_fused_linear_cross_entropy: false
+
+# If OOM, try sequence_len: 3072 or 2048 first.
+sequence_len: 4096
+sample_packing: true
+flash_attention: true
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+gradient_accumulation_steps: 32
+micro_batch_size: 1
+num_epochs: 1
+
+optimizer: adamw_bnb_8bit
+lr_scheduler: cosine
+learning_rate: 5e-6
+warmup_ratio: 0.03
+weight_decay: 0.01
+
+bf16: true
+tf32: true
+
+logging_steps: 5
+evals_per_epoch: 1
+saves_per_epoch: 1
+
+resume_from_checkpoint:
+
+output_dir: ./outputs/qwen3-32b-fullsft-tokenlab
+use_wandb: true
+wandb_project: qwen3-32b-fullsft-tokenlab
+wandb_name: qwen3-32b-fullsft-tokenlab

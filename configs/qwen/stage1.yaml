@@ -1,0 +1,58 @@
+base_model: Qwen/Qwen3-4B
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+chat_template: tokenizer_default
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+datasets:
+  - path: /raid/user_davidoneil/datasets/TokenLab__CemigConvo_v0.5/CemigConvo_mixed_60_25_15.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+dataset_prepared_path: ./prepared_datasets/qwen3-4b-stage1-domain-mixed-60-25-15
+dataset_processes: 16
+
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_layer_norm: true
+liger_fused_linear_cross_entropy: false
+
+sequence_len: 4096
+sample_packing: false
+flash_attention: true
+gradient_checkpointing: true
+
+gradient_accumulation_steps: 4
+micro_batch_size: 8
+
+num_epochs: 1
+#max_steps: 8000
+
+optimizer: adamw_torch_fused
+lr_scheduler: cosine
+learning_rate: 1e-5
+warmup_ratio: 0.03
+weight_decay: 0.01
+
+bf16: true
+tf32: true
+
+val_set_size: 0.01
+logging_steps: 1
+evals_per_epoch: 4
+saves_per_epoch: 1
+
+resume_from_checkpoint:
+
+output_dir: ./outputs/qwen3-4b-stage1-domain-mixed-60-25-15
+use_wandb: true
+wandb_project: qwen3-stage-pipeline
+wandb_name: qwen3-4b-stage1-domain-mixed-60-25-15

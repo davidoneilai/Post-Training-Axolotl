@@ -1,0 +1,63 @@
+base_model: meta-llama/Llama-3.1-8B-Instruct
+tokenizer_type: AutoTokenizer
+trust_remote_code: true
+is_llama_derived_model: true
+
+datasets:
+  - path: nvidia/Llama-Nemotron-Post-Training-Dataset
+    type:
+      system_prompt: ""
+      field_instruction: input
+      field_input: ""
+      field_output: output
+      format: |-
+        {instruction}
+    split: chat
+
+val_set_size: 0.01     
+
+micro_batch_size: 1
+gradient_accumulation_steps: 8
+
+sequence_len: 8192             
+eval_sequence_len: 8192
+pad_to_sequence_len: true     
+sample_packing: true          
+
+
+optimizer: adamw_torch_fused  
+learning_rate: 2.0e-5
+weight_decay: 0.0
+betas: [0.9, 0.999]
+eps: 1.0e-8
+
+lr_scheduler: cosine
+warmup_steps: 100
+
+bf16: true                      
+tf32: true
+gradient_checkpointing: true
+
+special_tokens:
+  eos_token: "<|eot_id|>"
+  pad_token: "<|eot_id|>"
+
+eot_tokens:
+  - "<|eot_id|>"
+
+roles_to_train:
+  - assistant
+
+train_on_eos: last
+
+save_strategy: steps
+save_steps: 100
+save_total_limit: 3
+save_safetensors: true
+load_best_model_at_end: true
+metric_for_best_model: eval_loss
+greater_is_better: false
+
+logging_steps: 10
+output_dir: ./outputs/llama31_full_sft_instruct_data_nemotron
+seed: 42

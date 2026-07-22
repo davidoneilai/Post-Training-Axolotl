@@ -1,0 +1,91 @@
+# ===== Modelo =====
+base_model: meta-llama/Llama-3.2-3B
+tokenizer_type: AutoTokenizer
+trust_remote_code: true
+
+# Llama 3.1 é derivado de Llama, isso ajuda Axolotl a aplicar otmizações corretas
+is_llama_derived_model: true
+
+# Template de conversa
+chat_template: chatml
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+special_tokens:
+  pad_token: "<|eot_id|>"
+
+# ===== Dataset (Nemotron Post-Training SFT) =====
+datasets:
+  - path: nvidia/Llama-Nemotron-Post-Training-Dataset
+    name: SFT           # subset da HF
+    split: chat         # você pode duplicar este bloco para math_v1.1, science, etc.
+    type: chat_template
+    field_messages: input            # coluna com a lista de {role, content}
+    # Se os campos já forem "role" e "content", não precisa do mapping abaixo.
+    message_property_mappings:
+      role: role
+      content: content
+    # A coluna "output" é a resposta; o Axolotl converte input+output em conversa interna.
+    field_output: output
+
+# Não treinar nos tokens do usuário/system
+train_on_inputs: false
+
+# ===== Comprimento de contexto =====
+sequence_len: 8192
+eval_sequence_len: 8192
+pad_to_sequence_len: true
+sample_packing: true
+sample_packing_group_size: 100000
+sample_packing_bin_size: 200
+group_by_length: true
+
+# ===== Batch / epochs – hiperparâmetros do paper =====
+micro_batch_size: 1               # per-device batch size
+gradient_accumulation_steps: 8    # 4 GPUs -> effective batch = 32
+num_epochs: 2
+
+# (opcional) se quiser deixar explícito que você tem 4 GPUs para DP
+# dp_shard_size: 4
+
+# ===== Otimizador / LR =====
+learning_rate: 2.0e-5
+optimizer: adamw_torch_fused
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_epsilon: 1.0e-8
+
+lr_scheduler: cosine
+warmup_steps: 100
+weight_decay: 0.0   # paper não especifica, então deixei 0.0 (padrão)
+
+# ===== Precisão / memória =====
+bf16: true          # ou "auto" se preferir
+tf32: true
+gradient_checkpointing: true
+activation_offloading: false
+
+# ===== Eval / logging / checkpoints =====
+val_set_size: 0.01          # 1% do dataset para validação (ajuste se quiser)
+eval_strategy: steps
+eval_steps: 100
+
+save_strategy: steps
+save_steps: 100
+save_total_limit: 3
+save_only_model: false
+save_safetensors: true
+load_best_model_at_end: true
+metric_for_best_model: eval_loss
+greater_is_better: false
+
+logging_steps: 10
+
+# ===== Saída / reproducibilidade / tracking =====
+output_dir: ./outputs/llama31_3b_nemotron_full_sft
+seed: 42
+
+use_wandb: true
+wandb_project: "llama32_nemotron_sft"
+wandb_name: "llama32-3b-base-full-sft-chatml"
