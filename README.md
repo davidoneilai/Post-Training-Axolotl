@@ -8,7 +8,7 @@ Pipeline Docker para fine-tuning com Axolotl em GPUs Blackwell (cu130).
 ## 1. Clone
 
 ```bash
-git clone https://github.com/SEU-USUARIO/teste-axo.git
+git clone https://github.com/SEU-USUARIO/Post-Training-Axolotl.git
 cd teste-axo
 
 git clone https://github.com/axolotl-ai-cloud/axolotl.git
