@@ -1,0 +1,33 @@
+# Artefatos de treino (checkpoints, logs)
+outputs/*
+!outputs/.gitkeep
+**/prepared_datasets/
+**/wandb/
+
+# Pesos e checkpoints (nunca versionar)
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+
+# Datasets grandes — versionar separadamente
+data/*
+!data/exemplo.jsonl
+!data/.gitkeep
+
+# Cache e secrets
+.env
+*.log
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Axolotl — clone local separado (ver README)
+axolotl/

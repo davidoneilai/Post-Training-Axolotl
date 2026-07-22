@@ -1,0 +1,14 @@
+[
+  {
+    "messages": [
+      {"role": "user", "content": "O que é fine-tuning supervisionado (SFT)?"},
+      {"role": "assistant", "content": "SFT é o ajuste de um modelo de linguagem usando pares pergunta-resposta rotulados, para que ele aprenda a seguir instruções em um domínio específico."}
+    ]
+  },
+  {
+    "messages": [
+      {"role": "user", "content": "Explique LoRA em uma frase."},
+      {"role": "assistant", "content": "LoRA treina apenas adaptadores de baixa dimensão nas camadas do modelo, reduzindo memória e custo em relação ao fine-tuning completo."}
+    ]
+  }
+]

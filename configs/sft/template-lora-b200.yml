@@ -1,0 +1,83 @@
+base_model: Qwen/Qwen3-4B
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+hf_use_auth_token: true
+
+chat_template: tokenizer_default
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+
+adapter: lora
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+
+# assim Axolotl aplicar LoRA em linears elegíveis
+lora_target_linear: true
+
+datasets:
+  - path: TokenLab/CemigConvoV1.1
+    split: regulacao
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /workspace/pipeline/data/tokenlab-IF-PT/train_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /workspace/pipeline/data/tokenlab-IF-PT/train_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+  - path: /workspace/pipeline/data/tokenlab-IF-PT/train_chunked_4096tok.jsonl
+    ds_type: json
+    type: chat_template
+    field_messages: messages
+    roles_to_train: [assistant]
+
+dataset_prepared_path: ./prepared_datasets/qwen3-4b-lora-v1.1
+dataset_processes: 16
+
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_layer_norm: true
+liger_fused_linear_cross_entropy: false
+
+sequence_len: 4096
+sample_packing: true
+flash_attention: true
+gradient_checkpointing: true
+
+gradient_accumulation_steps: 4
+micro_batch_size: 8
+num_epochs: 2
+
+optimizer: adamw_torch_fused
+lr_scheduler: cosine
+learning_rate: 1e-5
+warmup_ratio: 0.05
+weight_decay: 0.01
+
+bf16: true
+tf32: true
+
+logging_steps: 1
+evals_per_epoch: 1
+saves_per_epoch: 1
+
+resume_from_checkpoint:
+
+output_dir: ./outputs/qwen3-4b-lora-v1.1
+use_wandb: true
+wandb_project: qwen3-4b-lora-v1.1
+wandb_name: qwen3-4b-lora-v1.1

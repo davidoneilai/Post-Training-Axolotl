@@ -1,0 +1,38 @@
+services:
+  axolotl-sft:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: axolotl-sft-b200:latest
+    container_name: axolotl-sft-b200
+    ipc: host
+    shm_size: "16g"
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    volumes:
+      # Código Axolotl (clone local ou use o que vem na imagem)
+      - ./axolotl:/workspace/axolotl
+      # Configs, dados e artefatos do time
+      - ./configs:/workspace/pipeline/configs
+      - ./data:/workspace/pipeline/data
+      - ./outputs:/workspace/pipeline/outputs
+      - ./scripts:/workspace/pipeline/scripts
+      # Cache Hugging Face (modelos e datasets)
+      - ${HF_HOME:-~/.cache/huggingface}:/root/.cache/huggingface
+    environment:
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+      - WANDB_PROJECT=${WANDB_PROJECT:-axolotl-sft}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}
+      # cu130: libcublas do PyTorch wheel (exec/bash não repassa o entrypoint)
+      - LD_LIBRARY_PATH=/workspace/axolotl-venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    tty: true
+    stdin_open: true

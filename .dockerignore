@@ -1,0 +1,17 @@
+# Clone local do Axolotl (montado via volume no compose)
+axolotl/
+
+# Artefatos e dados locais (montados via volume)
+outputs/
+data/
+
+# Git e secrets
+.git/
+.env
+
+# IDE e cache
+.idea/
+.vscode/
+.cache/
+__pycache__/
+*.pyc
