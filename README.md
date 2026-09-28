@@ -37,7 +37,7 @@ docker compose up -d --force-recreate
 
 ### Treino (recomendado)
 
-Use sempre `run-sft.sh` — ele configura o ambiente cu130 antes de chamar o Axolotl:
+Use sempre `run-sft.sh` — ele configura o ambiente cu130 antes de chamar o Axolotl e grava o log em `outputs/logs/` (visível no host):
 
 ```bash
 docker compose exec axolotl-sft bash /workspace/pipeline/scripts/run-sft.sh \
@@ -50,10 +50,19 @@ Ou entre no container e rode de lá:
 docker compose exec axolotl-sft bash
 
 bash /workspace/pipeline/scripts/run-sft.sh \
-  /workspace/pipeline/configs/sft/template-lora-b200.yml
+  /workspace/pipeline/configs/qwen/3.5-4b-only-raft.yaml
 ```
 
-Checkpoints em `outputs/` (pasta local, ignorada pelo Git).
+Em background (`nohup`), **não** redirecione para `/workspace/pipeline/*.log` — essa pasta raiz não é montada no host. O script já faz `tee` para `outputs/logs/`:
+
+```bash
+nohup bash /workspace/pipeline/scripts/run-sft.sh \
+  /workspace/pipeline/configs/qwen/3.5-4b-only-raft.yaml >/dev/null 2>&1 &
+```
+
+No host: `tail -f outputs/logs/<config>-*.log`
+
+Checkpoints e logs em `outputs/` (pasta local, ignorada pelo Git).
 
 ## Notas (B200 / cu130)
 
